@@ -1,45 +1,73 @@
-from sklearn.datasets import fetch_openml
+import pandas as pd
+from ucimlrepo import fetch_ucirepo
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report
-sms = fetch_openml(name="sms_spam", version=1, as_frame=True)
 
-X = sms.data.iloc[:, 0]
-y = sms.target
+# Fetch SMS Spam Collection Dataset
+sms_spam = fetch_ucirepo(id=228)
 
-# Convert text into numerical features
+# Features and Target
+X = sms_spam.data.features
+y = sms_spam.data.targets
+
+# Convert target to Series
+if isinstance(y, pd.DataFrame):
+    y = y.iloc[:, 0]
+
+# Display first 5 rows
+print("Dataset Preview:")
+print(pd.concat([X, y], axis=1).head())
+
+# Convert text into numerical vectors
 vectorizer = CountVectorizer()
-X = vectorizer.fit_transform(X)
+
+# The dataset has one text column
+X_vector = vectorizer.fit_transform(X.iloc[:, 0])
 
 # Split dataset
 X_train, X_test, y_train, y_test = train_test_split(
-    X,
+    X_vector,
     y,
     test_size=0.2,
     random_state=42
 )
 
-# Train Naive Bayes model
+# Train Naive Bayes Model
 model = MultinomialNB()
 model.fit(X_train, y_train)
 
-# Prediction
+# Predict
 y_pred = model.predict(X_test)
 
 # Accuracy
-print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nAccuracy:", accuracy_score(y_test, y_pred))
 
 # Classification Report
 print("\nClassification Report:\n")
 print(classification_report(y_test, y_pred))
 
-# Test a custom message
-message = ["Congratulations! You have won a free iPhone. Click here to claim your prize."]
+# Actual vs Predicted
+result = pd.DataFrame({
+    "Actual": y_test.values,
+    "Predicted": y_pred
+})
 
-message_vector = vectorizer.transform(message)
+print("\nActual vs Predicted (First 10 Rows):")
+print(result.head(10))
 
-prediction = model.predict(message_vector)
+# Test with Custom Messages
+messages = [
+    "Congratulations! You have won a free iPhone. Click here to claim your prize.",
+    "Hi, are we meeting at 6 PM today?"
+]
 
-print("\nMessage:", message[0])
-print("Prediction:", prediction[0])
+messages_vector = vectorizer.transform(messages)
+
+predictions = model.predict(messages_vector)
+
+print("\nCustom Message Predictions:")
+for msg, pred in zip(messages, predictions):
+    print(f"\nMessage: {msg}")
+    print(f"Prediction: {pred}")
