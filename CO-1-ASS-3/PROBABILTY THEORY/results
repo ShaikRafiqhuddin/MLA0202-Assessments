@@ -1,0 +1,11 @@
+Counts:
+Diagnosis
+Benign       357
+Malignant    212
+Name: count, dtype: int64
+
+Probabilities:
+Diagnosis
+Benign       0.627417
+Malignant    0.372583
+Name: proportion, dtype: float64
