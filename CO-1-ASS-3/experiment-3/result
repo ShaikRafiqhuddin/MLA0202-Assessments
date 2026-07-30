@@ -1,0 +1,9 @@
+Entropy of PlayTennis: 0.9403
+
+Information Gain:
+Outlook: 0.2467
+Temperature: 0.0292
+Humidity: 0.1518
+Wind: 0.0481
+
+Best Attribute (Root Node): Outlook
