@@ -1,37 +1,67 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
 
-df = pd.read_csv("House_Rent_Dataset.csv")
+df = pd.read_csv("rent_dataset.csv")
+
+print("First 5 Rows:")
+print(df.head())
+
+print("\nColumns:")
+print(df.columns)
 
 X = df[['Size', 'BHK', 'City']]
 y = df['Rent']
 
 X = pd.get_dummies(X, columns=['City'], drop_first=True)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
-
 model = LinearRegression()
-model.fit(X_train, y_train)
+model.fit(X, y)
 
-y_pred = model.predict(X_test)
+y_pred = model.predict(X)
 
-print("R² Score:", round(r2_score(y_test, y_pred), 4))
-print("MAE:", round(mean_absolute_error(y_test, y_pred), 2))
-print("RMSE:", round(mean_squared_error(y_test, y_pred) ** 0.5, 2))
+print("\nModel Performance")
+print("--------------------------")
+print("R² Score :", round(r2_score(y, y_pred), 4))
+print("MAE      :", round(mean_absolute_error(y, y_pred), 2))
+print("RMSE     :", round(mean_squared_error(y, y_pred) ** 0.5, 2))
+
+comparison = pd.DataFrame({
+    "Actual Rent": y,
+    "Predicted Rent": y_pred.round(2)
+})
+
+print("\nActual vs Predicted Rent")
+print(comparison)
 
 new_apartment = pd.DataFrame({
-    'Size': [1200],
-    'BHK': [3],
-    'City': ['Mumbai']
+    "Size": [1250],
+    "BHK": [3],
+    "City": ["Mumbai"]
 })
 
 new_apartment = pd.get_dummies(new_apartment)
-new_apartment = new_apartment.reindex(columns=X_train.columns, fill_value=0)
+new_apartment = new_apartment.reindex(columns=X.columns, fill_value=0)
 
 predicted_rent = model.predict(new_apartment)
 
-print("Predicted Rent: ₹{:.2f}".format(predicted_rent[0]))
+print("\nPredicted Rent for New Apartment")
+print("--------------------------------")
+print(f"₹ {predicted_rent[0]:.2f}")
+
+plt.figure(figsize=(8,6))
+plt.scatter(y, y_pred, color="blue", s=80)
+
+plt.plot(
+    [y.min(), y.max()],
+    [y.min(), y.max()],
+    color="red",
+    linewidth=2
+)
+
+plt.xlabel("Actual Rent")
+plt.ylabel("Predicted Rent")
+plt.title("Actual vs Predicted Rent")
+plt.grid(True)
+plt.show()
