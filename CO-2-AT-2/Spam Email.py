@@ -1,8 +1,8 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, ConfusionMatrixDisplay
 
 df = pd.read_csv("spam.csv", encoding="latin-1")
 
@@ -18,29 +18,41 @@ vectorizer = TfidfVectorizer(stop_words='english')
 
 X = vectorizer.fit_transform(X)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
-)
-
 model = LogisticRegression(max_iter=1000)
-model.fit(X_train, y_train)
 
-y_pred = model.predict(X_test)
+model.fit(X, y)
 
-print("Accuracy:", accuracy_score(y_test, y_pred))
-print(classification_report(y_test, y_pred))
+y_pred = model.predict(X)
 
-email = ["URGENT! Congratulations! You have won a FREE iPhone. Click here now to claim your prize."]
+print("Accuracy:", round(accuracy_score(y, y_pred), 4))
+print("\nClassification Report")
+print(classification_report(y, y_pred))
+
+comparison = pd.DataFrame({
+    "Actual": y,
+    "Predicted": y_pred
+})
+
+print("\nActual vs Predicted")
+print(comparison.head(20))
+
+email = ["Congratulations! You have won a FREE iPhone. Click here to claim your prize now."]
 
 email_vector = vectorizer.transform(email)
 
 prediction = model.predict(email_vector)
-probability = model.predict_proba(email_vector)
-
-print("Ham Probability :", probability[0][0])
-print("Spam Probability:", probability[0][1])
 
 if prediction[0] == 1:
-    print("Spam Email")
+    print("\nPrediction: Spam Email")
 else:
-    print("Non-Spam Email")
+    print("\nPrediction: Non-Spam Email")
+
+ConfusionMatrixDisplay.from_predictions(
+    y,
+    y_pred,
+    display_labels=["Ham", "Spam"],
+    cmap="Blues"
+)
+
+plt.title("Confusion Matrix")
+plt.show()
