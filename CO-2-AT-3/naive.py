@@ -6,9 +6,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 
-df = pd.read_csv("spam.csv")
+df = pd.read_csv("emails.csv", encoding="latin1")
 
 print(df.head())
+print(df.columns)
 print(df["Prediction"].value_counts())
 
 X = df.drop(columns=["Email No.", "Prediction"])
@@ -51,12 +52,14 @@ sns.heatmap(
 
 plt.xlabel("Predicted")
 plt.ylabel("Actual")
-plt.title("Without Laplace Smoothing")
+plt.title("Naive Bayes Without Laplace Smoothing")
+
 plt.savefig(
-    "q3_confusion_matrix_without_smoothing.png",
+    "q3_without_laplace.png",
     dpi=300,
     bbox_inches="tight"
 )
+
 plt.show()
 
 model_with_smoothing = MultinomialNB(alpha=1.0)
@@ -86,10 +89,10 @@ sns.heatmap(
 
 plt.xlabel("Predicted")
 plt.ylabel("Actual")
-plt.title("With Laplace Smoothing")
+plt.title("Naive Bayes With Laplace Smoothing")
 
 plt.savefig(
-    "q3_confusion_matrix_with_smoothing.png",
+    "q3_with_laplace.png",
     dpi=300,
     bbox_inches="tight"
 )
