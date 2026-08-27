@@ -1,0 +1,248 @@
+MLA02 CO5 — ASSESSMENT TOOL 2
+PSEUDOCODE ANSWERS
+
+============================================================
+QUESTION 1: MONTE CARLO SAMPLING FOR PROBABILITY ESTIMATION
+============================================================
+
+INPUT:
+    N = number of simulation trials
+    Traffic probabilities:
+        Light = 0.35
+        Moderate = 0.45
+        Heavy = 0.20
+    On-time probabilities:
+        Light = 0.95
+        Moderate = 0.85
+        Heavy = 0.65
+
+OUTPUT:
+    Estimated probability of an on-time delivery
+
+BEGIN
+    Set OnTimeCount = 0
+
+    FOR trial = 1 TO N
+        Generate random number R1
+
+        IF R1 < 0.35 THEN
+            Traffic = Light
+            P = 0.95
+        ELSE IF R1 < 0.80 THEN
+            Traffic = Moderate
+            P = 0.85
+        ELSE
+            Traffic = Heavy
+            P = 0.65
+        END IF
+
+        Generate random number R2
+
+        IF R2 < P THEN
+            OnTimeCount = OnTimeCount + 1
+        END IF
+    END FOR
+
+    EstimatedProbability = OnTimeCount / N
+    DISPLAY EstimatedProbability
+END
+
+
+============================================================
+QUESTION 2: ε-GREEDY ALGORITHM FOR K-ARMED BANDIT
+============================================================
+
+INPUT:
+    K = 5 movies
+    N = number of interactions
+    ε = exploration probability
+
+OUTPUT:
+    Movie with highest expected reward
+
+BEGIN
+    Initialize RewardEstimate[1..K] = 0
+    Initialize SelectionCount[1..K] = 0
+
+    FOR interaction = 1 TO N
+        Generate random number R
+
+        IF R < ε THEN
+            Select a random movie
+        ELSE
+            Select movie with maximum RewardEstimate
+        END IF
+
+        Observe Reward
+
+        SelectionCount[SelectedMovie] =
+            SelectionCount[SelectedMovie] + 1
+
+        RewardEstimate[SelectedMovie] =
+            RewardEstimate[SelectedMovie]
+            + (Reward - RewardEstimate[SelectedMovie])
+              / SelectionCount[SelectedMovie]
+    END FOR
+
+    BestMovie = movie with maximum RewardEstimate
+    DISPLAY BestMovie
+    DISPLAY RewardEstimate
+END
+
+
+============================================================
+QUESTION 3: VALUE ITERATION FOR ROBOT PATH PLANNING
+============================================================
+
+INPUT:
+    States S
+    Actions {UP, DOWN, LEFT, RIGHT}
+    Transition probabilities
+    Rewards
+    Discount factor γ
+    Threshold θ
+    Obstacles
+    Goal state
+
+OUTPUT:
+    Optimal value function V
+    Optimal policy π
+
+BEGIN
+    FOR every state s
+        V[s] = 0
+    END FOR
+
+    REPEAT
+        Delta = 0
+
+        FOR every state s
+            IF s is terminal OR obstacle THEN
+                CONTINUE
+            END IF
+
+            OldValue = V[s]
+
+            FOR every action a
+                ActionValue =
+                    SUM P(s' | s,a)
+                    * (R(s,a,s') + γ * V[s'])
+            END FOR
+
+            V[s] = maximum ActionValue
+            Delta = MAX(Delta, |OldValue - V[s]|)
+        END FOR
+
+    UNTIL Delta < θ
+
+    FOR every non-terminal state s
+        π[s] = action with maximum ActionValue
+    END FOR
+
+    DISPLAY V
+    DISPLAY π
+END
+
+
+============================================================
+QUESTION 4: TD(0) LEARNING FOR GAME SCORE PREDICTION
+============================================================
+
+INPUT:
+    Number of episodes
+    Learning rate α
+    Discount factor γ
+    Game environment
+
+OUTPUT:
+    State-value estimates
+
+BEGIN
+    Initialize V[s] = 0 for all states
+
+    FOR episode = 1 TO NumberOfEpisodes
+        Initialize starting state S
+
+        WHILE episode is not finished
+            Observe S
+            Take action
+            Observe R and next state S'
+
+            IF S' is terminal THEN
+                Target = R
+            ELSE
+                Target = R + γ * V[S']
+            END IF
+
+            TD_Error = Target - V[S]
+            V[S] = V[S] + α * TD_Error
+
+            S = S'
+        END WHILE
+    END FOR
+
+    DISPLAY V
+END
+
+
+============================================================
+QUESTION 5: POLICY ITERATION FOR AUTONOMOUS DRONE NAVIGATION
+============================================================
+
+INPUT:
+    States
+    Actions
+    Transition probabilities
+    Rewards
+    Discount factor γ
+    Energy constraints
+    Goal
+    Obstacles
+
+OUTPUT:
+    Optimal policy π
+    State-value function V
+
+BEGIN
+    Initialize random valid policy π
+    Initialize V[s] = 0
+
+    REPEAT
+
+        REPEAT
+            Delta = 0
+
+            FOR every non-terminal state s
+                OldValue = V[s]
+                Use current action π[s]
+
+                V[s] =
+                    SUM P(s' | s,π[s])
+                    * (R(s,π[s],s') + γ * V[s'])
+
+                Delta = MAX(Delta, |OldValue - V[s]|)
+            END FOR
+
+        UNTIL Delta < threshold
+
+        PolicyStable = TRUE
+
+        FOR every non-terminal state s
+            OldAction = π[s]
+
+            FOR every action a
+                Calculate ActionValue(a)
+            END FOR
+
+            π[s] = action with maximum ActionValue
+
+            IF π[s] != OldAction THEN
+                PolicyStable = FALSE
+            END IF
+        END FOR
+
+    UNTIL PolicyStable = TRUE
+
+    DISPLAY V
+    DISPLAY π
+END
